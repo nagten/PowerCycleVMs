@@ -16,3 +16,7 @@ How to use:
 
 Since VMware ESXi 6.7 Update 3 released on 20-aug-2019 VMWare added an option vmx.reboot.PowerCycle to simplify CPU Vulnerability Remediations via vCenter itself
 https://blogs.vmware.com/vsphere/2019/10/vmx-reboot-powercycle-makes-cpu-vulnerability-remediation-easy.html
+
+Requirements:
+vCenter environment
+PowerCli
