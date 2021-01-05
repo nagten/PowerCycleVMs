@@ -1,0 +1,55 @@
+param (
+[string]$filename = "ServersToPowerOn.txt", 
+[string]$log = "Poweron" + (get-date -uformat %Y-%m-%d) + ".log"
+)
+
+Set-StrictMode -Version 1.0
+
+$scriptstartTime = (get-date).TimeofDay
+
+if (Test-Path $filename)
+{
+	$listofVMs = $filename
+	#$listofVMs = $PSScriptRoot + "\ServersToPowerOn.txt"
+	
+}
+else
+{
+	#No input file stop
+	Write-Host "Can't find source file $filename `n" -ForegroundColor Red 
+	exit
+}
+
+$logFile = $PSScriptRoot + "\" + $log
+
+function main()
+{
+	StartupVMs
+}
+
+function StartupVMs()
+{
+	Write-Host "`nPowering on vitual machines:" -ForegroundColor Green
+	
+	$vmsToStart = Get-Content $listofVMs
+
+	Foreach ($vmToStart in $vmsToStart)
+	{
+		$logTime = Get-Date
+			
+		#Get the VM
+		$vm = Get-VM -name $vmToStart | where {$_.ExtensionData.Config.ManagedBy.extensionKey -notmatch 'com.vmware.vcDr'}
+			
+		# Start the VM
+		$logTime.ToString('s') + ';Start-VM;' + $vm | Tee-Object -FilePath $logfile -Append
+		$result = Start-VM -VM $vm -Confirm:$false -RunAsync
+	}
+		
+	$ElapsedTime = (get-date).TimeofDay - $scriptstartTime
+		
+	Write-Host "`nTotal script runtime: $($ElapsedTime.Minutes) min $($ElapsedTime.Seconds) sec"
+
+}
+
+#Start script
+main
